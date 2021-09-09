@@ -32,6 +32,7 @@
 #include <time.h>
 #include <unistd.h>
 
+#include <chrono>
 #include <map>
 #include <string>
 #include <vector>
@@ -50,9 +51,19 @@ static const int nssigs[] = {
 
 struct pids_t {
 	time_t start;
-	std::string remote_txt;
 	struct sockaddr_in6 remote_addr;
 	int pid_syscall_fd;
+	int returnCode = -1;
+	int signal = -1;
+	long long sysTime = 0x7fffffffffffffffLL;
+	long long usrTime = 0x7fffffffffffffffLL;
+	long long memory = 0x7fffffffffffffffLL;
+	std::chrono::steady_clock::time_point start_point =
+	    std::chrono::steady_clock::now();
+	;
+	std::chrono::steady_clock::time_point stop_point =
+	    std::chrono::steady_clock::time_point::max();
+	std::string remote_txt;
 };
 
 struct mount_t {

@@ -41,15 +41,18 @@
 #include <time.h>
 #include <unistd.h>
 
+#include <chrono>
 #include <string>
 #include <vector>
 
 #include "cgroup.h"
 #include "cgroup2.h"
 #include "contain.h"
+#include "include/json.hpp"
 #include "logs.h"
 #include "macros.h"
 #include "net.h"
+#include "result.h"
 #include "sandbox.h"
 #include "user.h"
 #include "util.h"
@@ -240,6 +243,12 @@ static void removeProc(nsjconf_t* nsjconf, pid_t pid) {
 	LOG_D("Removed pid=%d from the queue (IP:'%s', start time:'%s')", pid, p.remote_txt.c_str(),
 	    util::timeToStr(p.start).c_str());
 
+	long long realTime =
+	    std::chrono::duration_cast<std::chrono::milliseconds>(p.stop_point - p.start_point)
+		.count();
+	Result::Result ret{p.memory, {p.sysTime, p.usrTime, realTime}, p.returnCode, p.signal};
+	std::string retString = nlohmann::json(ret).dump();
+	puts(retString.c_str());
 	close(p.pid_syscall_fd);
 	nsjconf->pids.erase(pid);
 }
@@ -316,6 +325,16 @@ static int reapProc(nsjconf_t* nsjconf, pid_t pid, bool should_wait = false) {
 	int status;
 
 	if (wait4(pid, &status, should_wait ? 0 : WNOHANG, NULL) == pid) {
+		if (nsjconf->pids.find(pid) != nsjconf->pids.end()) {
+			auto& p = nsjconf->pids[pid];
+			p.stop_point = std::chrono::steady_clock::now();
+			if (WIFEXITED(status)) {
+				p.returnCode = WEXITSTATUS(status);
+			}
+			if (WIFSIGNALED(status)) {
+				p.signal = WTERMSIG(status);
+			}
+		}
 		if (nsjconf->use_cgroupv2) {
 			cgroup2::finishFromParent(nsjconf, pid);
 		} else {
@@ -417,6 +436,9 @@ static bool initParent(nsjconf_t* nsjconf, pid_t pid, int pipefd) {
 		LOG_E("Couldn't initialize user namespace for pid=%d", pid);
 		return false;
 	}
+
+	nsjconf->pids[pid].start_point = std::chrono::steady_clock::now();
+
 	if (!util::writeToFd(pipefd, &kSubprocDoneChar, sizeof(kSubprocDoneChar))) {
 		LOG_E("Couldn't signal the new process via a socketpair");
 		return false;
