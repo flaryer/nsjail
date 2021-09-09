@@ -1,19 +1,21 @@
 - [Overview](#overview)
 - [What forms of isolation does it provide](#what-forms-of-isolation-does-it-provide)
-- Which use-cases are supported
-  * [Isolation of network services (inetd style)](#isolation-of-network-services-inetd-style)
-  * [Isolation with access to a private, cloned interface (requires root/setuid)](#isolation-with-access-to-a-private-cloned-interface-requires-rootsetuid)
-  * [Isolation of local processes](#isolation-of-local-processes)
-  * [Isolation of local processes (and re-running them, if necessary)](#isolation-of-local-processes-and-re-running-them-if-necessary)
-- Examples of use
-  * [Bash in a minimal file-system with uid==0 and access to /dev/urandom only](#bash-in-a-minimal-file-system-with-uid0-and-access-to-devurandom-only)
-  * [/usr/bin/find in a minimal file-system (only /usr/bin/find accessible from /usr/bin)](#usrbinfind-in-a-minimal-file-system-only-usrbinfind-accessible-from-usrbin)
-  * [Using /etc/subuid](#using-etcsubuid)
-  * [Even more contrained shell (with seccomp-bpf policies)](#even-more-contrained-shell-with-seccomp-bpf-policies)
+- [Which use-cases are supported](#which-use-cases-are-supported)
+  - [Isolation of network services (inetd style)](#isolation-of-network-services-inetd-style)
+  - [Isolation with access to a private, cloned interface (requires root/setuid)](#isolation-with-access-to-a-private-cloned-interface-requires-rootsetuid)
+  - [Isolation of local processes](#isolation-of-local-processes)
+  - [Isolation of local processes (and re-running them, if necessary)](#isolation-of-local-processes-and-re-running-them-if-necessary)
+- [Bash in a minimal file-system with uid==0 and access to /dev/urandom only](#bash-in-a-minimal-file-system-with-uid0-and-access-to-devurandom-only)
+- [/usr/bin/find in a minimal file-system (only /usr/bin/find accessible from /usr/bin)](#usrbinfind-in-a-minimal-file-system-only-usrbinfind-accessible-from-usrbin)
+- [Using /etc/subuid](#using-etcsubuid)
+- [Even more contrained shell (with seccomp-bpf policies)](#even-more-contrained-shell-with-seccomp-bpf-policies)
 - [Configuration file](#configuration-file)
 - [More info](#more-info)
 - [Launching in Docker](#launching-in-docker)
 - [Contact](#contact)
+
+***
+Magic change nsjail, add time measurement. Referenced projects: [Heng-Core](https://github.com/ThinkSpiritLab/Heng-Core) [carapace](https://github.com/ThinkSpiritLab/carapace)
 
 ***
 This is NOT an official Google product.
