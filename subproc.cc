@@ -398,7 +398,7 @@ int reapProc(nsjconf_t* nsjconf) {
 		    now - p.second.start_point)
 				       .count();
 		int64_t usrDiff = cgroup::getUsrTime(nsjconf, pid);
-		if ((uint64_t)usrDiff >= nsjconf->tlimit ||
+		if ((uint64_t)usrDiff > nsjconf->tlimit ||
 		    (uint64_t)realDiff >= nsjconf->tlimit + 100) {
 			LOG_I("pid=%d run time >= time limit (%ld >= %" PRIu64 ") (%s). Killing it",
 			    pid, (long)realDiff, nsjconf->tlimit, p.second.remote_txt.c_str());
