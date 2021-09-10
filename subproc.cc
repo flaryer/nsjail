@@ -262,7 +262,8 @@ void displayProc(nsjconf_t* nsjconf) {
 	time_t now = time(NULL);
 	for (const auto& pid : nsjconf->pids) {
 		time_t diff = now - pid.second.start;
-		uint64_t left = nsjconf->tlimit ? nsjconf->tlimit - (uint64_t)diff : 0;
+		uint64_t left =
+		    nsjconf->tlimit / 1000 ? nsjconf->tlimit / 1000 - (uint64_t)diff : 0;
 		LOG_I("pid=%d, Remote host: %s, Run time: %ld sec. (time left: %s s.)", pid.first,
 		    pid.second.remote_txt.c_str(), (long)diff,
 		    nsjconf->tlimit ? std::to_string(left).c_str() : "unlimited");
@@ -382,14 +383,16 @@ int reapProc(nsjconf_t* nsjconf) {
 		rv = reapProc(nsjconf, si.si_pid);
 	}
 
-	time_t now = time(NULL);
+	auto now = std::chrono::steady_clock::now();
 	for (const auto& p : nsjconf->pids) {
 		if (nsjconf->tlimit == 0) {
 			continue;
 		}
 		pid_t pid = p.first;
-		time_t diff = now - p.second.start;
-		if ((uint64_t)diff >= nsjconf->tlimit) {
+		int64_t diff = std::chrono::duration_cast<std::chrono::milliseconds>(
+		    now - p.second.start_point)
+				   .count();
+		if ((uint64_t)diff >= nsjconf->tlimit + 100) {
 			LOG_I("pid=%d run time >= time limit (%ld >= %" PRIu64 ") (%s). Killing it",
 			    pid, (long)diff, nsjconf->tlimit, p.second.remote_txt.c_str());
 			/*
