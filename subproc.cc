@@ -243,12 +243,17 @@ static void removeProc(nsjconf_t* nsjconf, pid_t pid) {
 	LOG_D("Removed pid=%d from the queue (IP:'%s', start time:'%s')", pid, p.remote_txt.c_str(),
 	    util::timeToStr(p.start).c_str());
 
-	long long realTime =
+	int64_t realTime =
 	    std::chrono::duration_cast<std::chrono::milliseconds>(p.stop_point - p.start_point)
 		.count();
 	Result::Result ret{p.memory, {p.sysTime, p.usrTime, realTime}, p.returnCode, p.signal};
 	std::string retString = nlohmann::json(ret).dump();
-	puts(retString.c_str());
+	if (nsjconf->outFd) {
+		write(nsjconf->outFd, retString.c_str(),
+		    strlen(retString.c_str()) * sizeof(*retString.c_str()));
+	} else {
+		puts(retString.c_str());
+	}
 	close(p.pid_syscall_fd);
 	nsjconf->pids.erase(pid);
 }

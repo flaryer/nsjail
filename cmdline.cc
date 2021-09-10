@@ -485,6 +485,8 @@ std::unique_ptr<nsjconf_t> parseArgs(int argc, char* argv[]) {
 	nsjconf->openfds.push_back(STDOUT_FILENO);
 	nsjconf->openfds.push_back(STDERR_FILENO);
 
+	nsjconf->outFd = 0;
+
 	// Generate options array for getopt_long.
 	size_t options_length = ARR_SZ(custom_opts) + 1;
 	struct option opts[options_length];
@@ -498,7 +500,7 @@ std::unique_ptr<nsjconf_t> parseArgs(int argc, char* argv[]) {
 	int opt_index = 0;
 	for (;;) {
 		int c = getopt_long(argc, argv,
-		    "x:H:D:C:c:p:i:u:g:l:L:t:M:NdvqQeh?E:R:B:T:m:s:P:I:U:G:", opts, &opt_index);
+		    "x:H:D:C:c:p:i:u:g:l:L:t:M:NdvqQeh?E:R:B:T:m:s:P:I:U:G:f:", opts, &opt_index);
 		if (c == -1) {
 			break;
 		}
@@ -899,6 +901,9 @@ std::unique_ptr<nsjconf_t> parseArgs(int argc, char* argv[]) {
 			break;
 		case 0x903:
 			nsjconf->nice_level = (int)strtol(optarg, NULL, 0);
+			break;
+		case 'f':
+			nsjconf->outFd = (int)strtol(optarg, NULL, 0);
 			break;
 		default:
 			cmdlineUsage(argv[0]);

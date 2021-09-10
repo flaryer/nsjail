@@ -58,9 +58,7 @@ struct pids_t {
 	int64_t sysTime = INT64_MAX;
 	int64_t usrTime = INT64_MAX;
 	int64_t memory = INT64_MAX;
-	std::chrono::steady_clock::time_point start_point =
-	    std::chrono::steady_clock::now();
-	;
+	std::chrono::steady_clock::time_point start_point = std::chrono::steady_clock::now();
 	std::chrono::steady_clock::time_point stop_point =
 	    std::chrono::steady_clock::time_point::max();
 	std::string remote_txt;
@@ -187,6 +185,7 @@ struct nsjconf_t {
 	std::vector<int> caps;
 	std::vector<std::string> ifaces;
 	std::vector<pipemap_t> pipes;
+	int outFd;
 };
 
 #endif /* _NSJAIL_H */

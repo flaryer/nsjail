@@ -3,11 +3,11 @@
 #include "include/json.hpp"
 namespace Result {
 struct Result {
-	long long memory;
+	int64_t memory;
 	struct TimeUsage {
-		long long sys;
-		long long usr;
-		long long real;
+		int64_t sys;
+		int64_t usr;
+		int64_t real;
 	} time;
 	int returnCode;
 	int signal;
