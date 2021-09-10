@@ -102,12 +102,12 @@ static bool setTimer(nsjconf_t* nsjconf) {
 	    .it_interval =
 		{
 		    .tv_sec = 0,
-		    .tv_usec = 100000,
+		    .tv_usec = 50000,
 		},
 	    .it_value =
 		{
-		    .tv_sec = 0,
-		    .tv_usec = 100000,
+		    .tv_sec = long(nsjconf->tlimit) / 1000,
+		    .tv_usec = (long(nsjconf->tlimit) % 1000) * 1000,
 		},
 	};
 	if (setitimer(ITIMER_REAL, &it, NULL) == -1) {

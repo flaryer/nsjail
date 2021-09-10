@@ -156,6 +156,39 @@ static bool initNsFromParentCpu(nsjconf_t* nsjconf, pid_t pid) {
 	return addPidToTaskList(cpu_cgroup_path, pid);
 }
 
+int64_t getMaxMem(nsjconf_t* nsjconf, pid_t pid) {
+	std::string mem_cgroup_path = nsjconf->cgroup_mem_mount + '/' + nsjconf->cgroup_mem_parent +
+				      "/NSJAIL." + std::to_string(pid);
+	std::string memoryString =
+	    readFromCgroup(mem_cgroup_path + "/memory.memsw.max_usage_in_bytes", "memory");
+	if (memoryString.length()) {
+		return std::stoll(memoryString);
+	}
+	return INT64_MAX;
+}
+
+int64_t getSysTime(nsjconf_t* nsjconf, pid_t pid) {
+	std::string cpu_cgroup_path = nsjconf->cgroup_cpu_mount + '/' + nsjconf->cgroup_cpu_parent +
+				      "/NSJAIL." + std::to_string(pid);
+	std::string sysTimeString =
+	    readFromCgroup(cpu_cgroup_path + "/cpuacct.usage_sys", "sysTime");
+	if (sysTimeString.length()) {
+		return std::stoll(sysTimeString) / 1000 / 1000;
+	}
+	return INT64_MAX;
+}
+
+int64_t getUsrTime(nsjconf_t* nsjconf, pid_t pid) {
+	std::string cpu_cgroup_path = nsjconf->cgroup_cpu_mount + '/' + nsjconf->cgroup_cpu_parent +
+				      "/NSJAIL." + std::to_string(pid);
+	std::string usrTimeString =
+	    readFromCgroup(cpu_cgroup_path + "/cpuacct.usage_user", "usrTime");
+	if (usrTimeString.length()) {
+		return std::stoll(usrTimeString) / 1000 / 1000;
+	}
+	return INT64_MAX;
+}
+
 bool initNsFromParent(nsjconf_t* nsjconf, pid_t pid) {
 	RETURN_ON_FAILURE(initNsFromParentMem(nsjconf, pid));
 	RETURN_ON_FAILURE(initNsFromParentPids(nsjconf, pid));
@@ -176,12 +209,7 @@ void finishFromParent(nsjconf_t* nsjconf, pid_t pid) {
 					      nsjconf->cgroup_mem_parent + "/NSJAIL." +
 					      std::to_string(pid);
 		if (nsjconf->pids.find(pid) != nsjconf->pids.end()) {
-			auto& p = nsjconf->pids[pid];
-			std::string memoryString = readFromCgroup(
-			    mem_cgroup_path + "/memory.memsw.max_usage_in_bytes", "memory");
-			if (memoryString.length()) {
-				p.memory = std::stoll(memoryString);
-			}
+			nsjconf->pids[pid].memory = cgroup::getMaxMem(nsjconf, pid);
 		}
 		removeCgroup(mem_cgroup_path);
 	}
@@ -203,16 +231,8 @@ void finishFromParent(nsjconf_t* nsjconf, pid_t pid) {
 					      std::to_string(pid);
 		if (nsjconf->pids.find(pid) != nsjconf->pids.end()) {
 			auto& p = nsjconf->pids[pid];
-			std::string sysTimeString =
-			    readFromCgroup(cpu_cgroup_path + "/cpuacct.usage_sys", "sysTime");
-			if (sysTimeString.length()) {
-				p.sysTime = std::stoll(sysTimeString) / 1000 / 1000;
-			}
-			std::string usrTimeString =
-			    readFromCgroup(cpu_cgroup_path + "/cpuacct.usage_user", "usrTime");
-			if (usrTimeString.length()) {
-				p.usrTime = std::stoll(usrTimeString) / 1000 / 1000;
-			}
+			p.sysTime = cgroup::getSysTime(nsjconf, pid);
+			p.usrTime = cgroup::getUsrTime(nsjconf, pid);
 		}
 		removeCgroup(cpu_cgroup_path);
 	}

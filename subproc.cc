@@ -389,12 +389,14 @@ int reapProc(nsjconf_t* nsjconf) {
 			continue;
 		}
 		pid_t pid = p.first;
-		int64_t diff = std::chrono::duration_cast<std::chrono::milliseconds>(
+		int64_t realDiff = std::chrono::duration_cast<std::chrono::milliseconds>(
 		    now - p.second.start_point)
-				   .count();
-		if ((uint64_t)diff >= nsjconf->tlimit + 100) {
+				       .count();
+		int64_t usrDiff = cgroup::getUsrTime(nsjconf, pid);
+		if ((uint64_t)usrDiff >= nsjconf->tlimit ||
+		    (uint64_t)realDiff >= nsjconf->tlimit + 100) {
 			LOG_I("pid=%d run time >= time limit (%ld >= %" PRIu64 ") (%s). Killing it",
-			    pid, (long)diff, nsjconf->tlimit, p.second.remote_txt.c_str());
+			    pid, (long)realDiff, nsjconf->tlimit, p.second.remote_txt.c_str());
 			/*
 			 * Probably a kernel bug - some processes cannot be killed with KILL if
 			 * they're namespaced, and in a stopped state

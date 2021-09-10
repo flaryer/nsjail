@@ -29,6 +29,9 @@
 
 namespace cgroup {
 
+int64_t getMaxMem(nsjconf_t* nsjconf, pid_t pid);
+int64_t getSysTime(nsjconf_t* nsjconf, pid_t pid);
+int64_t getUsrTime(nsjconf_t* nsjconf, pid_t pid);
 bool initNsFromParent(nsjconf_t* nsjconf, pid_t pid);
 bool initNs(void);
 void finishFromParent(nsjconf_t* nsjconf, pid_t pid);

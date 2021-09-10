@@ -55,9 +55,9 @@ struct pids_t {
 	int pid_syscall_fd;
 	int returnCode = -1;
 	int signal = -1;
-	long long sysTime = 0x7fffffffffffffffLL;
-	long long usrTime = 0x7fffffffffffffffLL;
-	long long memory = 0x7fffffffffffffffLL;
+	int64_t sysTime = INT64_MAX;
+	int64_t usrTime = INT64_MAX;
+	int64_t memory = INT64_MAX;
 	std::chrono::steady_clock::time_point start_point =
 	    std::chrono::steady_clock::now();
 	;

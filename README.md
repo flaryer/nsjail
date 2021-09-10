@@ -17,6 +17,8 @@
 ***
 Magic change nsjail, add time measurement. Referenced projects: [Heng-Core](https://github.com/ThinkSpiritLab/Heng-Core) [carapace](https://github.com/ThinkSpiritLab/carapace)
 
+Change the unit of time limit(-t) to milliseconds.
+
 ***
 This is NOT an official Google product.
 
