@@ -249,8 +249,10 @@ static void removeProc(nsjconf_t* nsjconf, pid_t pid) {
 	Result::Result ret{p.memory, {p.sysTime, p.usrTime, realTime}, p.returnCode, p.signal};
 	std::string retString = nlohmann::json(ret).dump();
 	if (nsjconf->outFd) {
-		write(nsjconf->outFd, retString.c_str(),
-		    strlen(retString.c_str()) * sizeof(*retString.c_str()));
+		const ssize_t sz = strlen(retString.c_str()) * sizeof(*retString.c_str());
+		if (write(nsjconf->outFd, retString.c_str(), sz) != sz) {
+			puts(retString.c_str());
+		}
 	} else {
 		puts(retString.c_str());
 	}
