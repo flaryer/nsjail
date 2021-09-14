@@ -19,6 +19,31 @@ Magic change nsjail, add time measurement. Referenced projects: [Heng-Core](http
 
 Change the unit of time limit(-t) to milliseconds.
 
+Adapt to ubuntu:
+
+1. delete subproc.cc L572-L574
+
+```cpp
+	struct clone_args ca = {
+	    .flags = (uint64_t)flags,
+	    .pidfd = 0,
+	    .child_tid = 0,
+	    .parent_tid = 0,
+	    .exit_signal = (uint64_t)exit_signal,
+	    .stack = 0,
+	    .stack_size = 0,
+	    .tls = 0,
+	    // .set_tid = 0,
+	    // .set_tid_size = 0,
+	    // .cgroup = 0,
+	};
+```
+
+2. apt install libnl-route-3-dev
+
+3. open memsw: <https://blog.csdn.net/SUKI547/article/details/112328873>
+
+
 ***
 This is NOT an official Google product.
 
