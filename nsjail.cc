@@ -106,8 +106,8 @@ static bool setTimer(nsjconf_t* nsjconf) {
 		},
 	    .it_value =
 		{
-		    .tv_sec = long(nsjconf->tlimit) / 1000,
-		    .tv_usec = (long(nsjconf->tlimit) % 1000) * 1000,
+		    .tv_sec = __time_t(nsjconf->tlimit) / 1000,
+		    .tv_usec = __suseconds_t(nsjconf->tlimit) % 1000 * 1000,
 		},
 	};
 	if (setitimer(ITIMER_REAL, &it, NULL) == -1) {
