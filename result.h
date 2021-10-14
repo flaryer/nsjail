@@ -2,7 +2,6 @@
 #define RESULT_HPP
 #include "include/json.hpp"
 namespace Result {
-const uint64_t extraRealMs = 250;
 struct Result {
 	int64_t memory;
 	struct TimeUsage {
